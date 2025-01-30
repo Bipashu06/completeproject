@@ -1,0 +1,100 @@
+table td, th{
+    border: 1px solid #737373;
+    padding: 4px;
+}
+#edit_btn, #delete_btn{
+    border: none;
+    border-radius: 4px;
+    background-color: greenyellow;
+    padding: 4px;
+    cursor: pointer;
+}
+#delete_btn{
+    background-color: rgb(196, 72, 72);
+}
+.product-edit-popup, .error-div-container{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(37, 37, 37, 0.123); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+.product-edit-popup form{
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 1px 1px 10px rgb(31, 29, 29);
+    padding: 40px 30px;
+    background-color: white;
+    transform: translate(0%, 0%);
+}
+.product-edit-popup img{
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 2px 2px 10px gray;
+    padding: 4px;
+}
+.product-edit-popup form label{
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    color: rgb(94, 94, 94);
+    padding: 8px 0px;
+    font-weight: 500;
+}
+.product-edit-popup form input{
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    width: 90%;
+    padding: 8px;
+    border: none;
+    transition: 0.3s;
+    border-radius: 2px;
+    border: 1px solid rgb(177, 177, 177);
+}
+.product-edit-popup input:focus{
+    outline: none;
+    border-color: #727272;
+}
+.product-edit-popup input[type="submit"]{
+    border: none;
+    border-radius: 4px;
+    background-color: greenyellow;
+    font-size: 16px;
+    padding: 10px 10px;
+    margin: 10px 0px 0px 10px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.error-div{
+    background-color: white;
+    box-shadow: 2px 2px 10px -2px #727272;
+    text-align: center;
+    padding: 12px 30px;
+    border-radius: 4px;
+    margin: auto;
+}
+
+#quantity_input{
+    border: none;
+    border-radius: 4px;
+    width: 70%;
+    background-color: rgba(115, 193, 198, 0.545);
+    text-align: center;
+}
+#quantity_input::-webkit-inner-spin-button,
+#quantity_input::-webkit-inner-spin-button{
+    -webkit-appearance: none;
+}

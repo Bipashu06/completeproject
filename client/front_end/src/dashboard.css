@@ -1,0 +1,29 @@
+.box-container{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    flex-wrap: wrap;
+    /* overflow-y: scroll; */
+    height: max-content;
+}
+/* .box-container::-webkit-scrollbar {
+    display: none; 
+}
+.box-container {
+    scrollbar-width: none; 
+} */
+.box{
+    display: inline-block;
+    background-color: #5E60CE;
+    color: white;
+    text-align: left;
+    height: max-content;
+    width: 200px;
+    padding: 20px 8px;
+    border-radius: 4px;
+}
+.box p{
+   font-size: 24px;
+}
+

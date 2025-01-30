@@ -1,0 +1,70 @@
+
+.form-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+}
+.LoginForm{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    width: 100%;
+    border-radius: 4px;
+    box-shadow: 1px 1px 10px gray;
+    padding: 40px 30px;
+    background-color: white;
+}
+.LoginForm::before{
+    content: "";
+    position: absolute;
+    height: 150px;
+    width: 150px;
+    background-color: #11BE3E;
+    background: linear-gradient(to bottom, #11BE3E, #36a854);
+    border-radius: 50%;
+    top: 0;
+    left: 100%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+}
+
+.LoginForm label{
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    color: rgb(94, 94, 94);
+    padding: 8px 0px;
+    font-weight: 500;
+}
+.LoginForm input{
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    width: 90%;
+    padding: 8px;
+    border: none;
+    transition: 0.3s;
+    border-radius: 2px;
+    border: 1px solid rgb(177, 177, 177);
+    /* box-shadow: 1px 1px 10px -4px#b3b3b3,
+                1px 1px 10px -4px#b3b3b3,
+                1px 1px 10px -4px#b3b3b3; */
+
+}
+.LoginForm input:focus{
+    outline: none;
+    border-color: #727272;
+}
+.LoginForm button{
+    font-size: 18px;
+    max-width: max-content;
+    font-weight: 500;
+    background-color: #11BE3E;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 100px;
+    margin: 20px auto 0px auto;
+    cursor: pointer;
+    color: white;
+}

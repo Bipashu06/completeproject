@@ -1,0 +1,25 @@
+.mainpage{
+    height: 100vh;
+    overflow-y: hidden;
+    display: flex;
+}
+.sideBar{
+    background-color: black;
+    max-width: max-content;
+    height: 100%;
+    padding: 16px 24px;
+}
+.sideBar ul{
+    margin-top: 30px;
+}
+.sidebar_link{
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 400;
+    padding: 8px 0px;
+    display: block;
+}
+.sidebar_link.active{
+   border-bottom: 2px solid white;
+}
