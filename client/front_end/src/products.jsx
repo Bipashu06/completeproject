@@ -16,7 +16,7 @@ export default function AddProduct(){
           price
         };
     
-        axios.post("https://sql12.freesqldatabase.com/products", product)
+        axios.post("https://fullstack-backend-gaay.onrender.com/products", product)
           .then((response) => {
             console.log(response.data);
             console.log(response.data.message);

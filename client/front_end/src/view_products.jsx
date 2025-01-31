@@ -9,7 +9,7 @@ function ViewProducts() {
   const [productNameOrder, setProductNameOrder] = useState("");
 
   function fetchProducts() {
-    fetch("http://localhost:3001/products")
+    fetch("https://fullstack-backend-gaay.onrender.com/products")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch products.");
@@ -25,7 +25,7 @@ function ViewProducts() {
   }
 
   const deleteProduct = (DelId) => {
-    axios.delete('http://localhost:3001/products',{ data: { id: DelId }}).then((response) => {
+    axios.delete('https://fullstack-backend-gaay.onrender.com/products',{ data: { id: DelId }}).then((response) => {
       console.log(response.data);
       fetchProducts();
     }).catch((e) => {
@@ -40,7 +40,7 @@ function ViewProducts() {
 
   const editProduct = (e) => {
     e.preventDefault();
-    axios.put('http://localhost:3001/products/update', {
+    axios.put('https://fullstack-backend-gaay.onrender.com/update', {
       id: productId,
       product_name: productName.toLowerCase(),
       HSN: hsn.toLowerCase(),
@@ -49,7 +49,7 @@ function ViewProducts() {
       console.log(response.data);
       fetchProducts();
       setShowForm(false); 
-      return axios.put('http://localhost:3001/orders/update', { product_name: productNameOrder.toLowerCase(), 
+      return axios.put('https://fullstack-backend-gaay.onrender.com/update', { product_name: productNameOrder.toLowerCase(), 
       editedValue: productName.toLowerCase()});
     }).then((response) => {
         console.log("second task response", response.data);

@@ -51,7 +51,7 @@ export default function Invoice() {
       .catch((error) => console.error("Error generating PDF:", error));
   };
   function fetchCutomers() {
-    fetch("http://localhost:3001/customers")
+    fetch("https://fullstack-backend-gaay.onrender.com/customers")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch customers.");
@@ -66,7 +66,7 @@ export default function Invoice() {
       });
   };
   function fetchProducts() {
-    fetch("http://localhost:3001/products")
+    fetch("https://fullstack-backend-gaay.onrender.com/products")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch products.");
@@ -81,7 +81,7 @@ export default function Invoice() {
       });
   }
   function fetchOrders() {
-    fetch("http://localhost:3001/orders")
+    fetch("https://fullstack-backend-gaay.onrender.com/orders")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch ordered products.");
@@ -97,7 +97,7 @@ export default function Invoice() {
       });
   }
   function fetchInvoices() {
-    fetch("http://localhost:3001/invoices")
+    fetch("https://fullstack-backend-gaay.onrender.com/invoices")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch invoices.");
@@ -112,11 +112,11 @@ export default function Invoice() {
       });
   }
   const deleteInvoice = async (id) => {
-   axios.delete('http://localhost:3001/invoices', { data: {invoice_id: id}}) 
+   axios.delete('https://fullstack-backend-gaay.onrender.com/invoices', { data: {invoice_id: id}}) 
    .then((response) => {
     console.log("response of first request", response.data);
     fetchInvoices();
-    return axios.delete('http://localhost:3001/orders', { data: { invoice_id: id}});
+    return axios.delete('https://fullstack-backend-gaay.onrender.com/orders', { data: { invoice_id: id}});
    })
    .then((res) => {
       console.log("response of second request ", res.data);
@@ -195,7 +195,7 @@ export default function Invoice() {
   }
   const editCustomer = async () => {
     try{
-      const response = await axios.put(`http://localhost:3001/customers/update`, {
+      const response = await axios.put(`https://fullstack-backend-gaay.onrender.com/update`, {
           id: customerId,
           c_name: customerName.toLowerCase(),
           street_name: streetName.toLowerCase(),
@@ -216,7 +216,7 @@ export default function Invoice() {
   };
   async function EditOrder(){
     try{
-      const response = await axios.post('http://localhost:3001/orders/edited', editableProduct);
+      const response = await axios.post('https://fullstack-backend-gaay.onrender.com/edited', editableProduct);
       console.log(response.data);
       fetchOrders();
     }

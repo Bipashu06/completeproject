@@ -6,7 +6,7 @@ export default function DashBoard(){
     const [customers, setCustomers] = useState([]);
     const [invoice, setInvoice] = useState([]);
     function fetchProducts() {
-        fetch("https://sql12.freesqldatabase.com/products")
+        fetch("https://fullstack-backend-gaay.onrender.com/products")
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to fetch products.");
@@ -21,7 +21,7 @@ export default function DashBoard(){
           });
       }
       function fetchCutomers(){
-        fetch("https://sql12.freesqldatabase.com/customers") 
+        fetch("https://fullstack-backend-gaay.onrender.com/customers") 
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch customers.");
@@ -36,7 +36,7 @@ export default function DashBoard(){
         });
        };
        function fetchInvoices() {
-        fetch("https://sql12.freesqldatabase.com/invoices")
+        fetch("https://fullstack-backend-gaay.onrender.com/invoices")
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to fetch invoices.");
@@ -55,7 +55,6 @@ export default function DashBoard(){
         fetchProducts();
         fetchCutomers();
         fetchInvoices();
-
       }, []);
     return(
         <>

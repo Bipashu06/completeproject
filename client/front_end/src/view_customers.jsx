@@ -18,7 +18,7 @@ function ViewCustomers() {
   const [pin, setPin] = useState(0);
 
  function fetchCutomers(){
-  fetch("http://localhost:3001/customers") 
+  fetch("https://fullstack-backend-gaay.onrender.com/customers") 
   .then((response) => {
     if (!response.ok) {
       throw new Error("Failed to fetch customers.");
@@ -33,7 +33,7 @@ function ViewCustomers() {
   });
  };
  const deleteCustomer = (delid) => {
-    axios.delete('http://localhost:3001/customers', { data: { id: delid } }).then((response) => {
+    axios.delete('https://fullstack-backend-gaay.onrender.com/customers', { data: { id: delid } }).then((response) => {
       console.log(response.data);
       fetchCutomers();
     }).catch(e => {
@@ -43,7 +43,7 @@ function ViewCustomers() {
 
  const editCustomer = (e) => {
   e.preventDefault();
-  axios.put('http://localhost:3001/customers/update', {
+  axios.put('https://fullstack-backend-gaay.onrender.com/update', {
     id: customerId,
     c_name: customerName.toLowerCase(),
     street_name: streetName.toLowerCase(),

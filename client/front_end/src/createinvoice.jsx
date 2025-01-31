@@ -65,7 +65,7 @@ export default function CreateInvoice() {
     }
     async function fetchCustomers(){
         try {
-            const response = await fetch("http://localhost:3001/customers");
+            const response = await fetch("https://fullstack-backend-gaay.onrender.com/customers");
             if (!response.ok) {
                 throw new Error("Failed to fetch customers.");
             }
@@ -78,7 +78,7 @@ export default function CreateInvoice() {
     }
     async function fetchProducts() {
         try {
-            const response = await fetch("http://localhost:3001/products");
+            const response = await fetch("https://fullstack-backend-gaay.onrender.com/products");
             if (!response.ok) {
                 throw new Error("Failed to fetch products.");
             }
@@ -113,7 +113,7 @@ export default function CreateInvoice() {
     const [toPrintProducts, setToPrintProducts] = useState([]);
     const [currentSavedInvoice, setCurrentSavedInvoice] = useState({});
     async function fetchOrder(invoiceObj){
-        fetch("http://localhost:3001/invoices", {
+        fetch("https://fullstack-backend-gaay.onrender.com/invoices", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -156,7 +156,7 @@ export default function CreateInvoice() {
                         total_price: Number(addedProducts[i].quantity) * addedProducts[i].price
                         });
         }
-        axios.post("http://localhost:3001/orders", Order)
+        axios.post("https://fullstack-backend-gaay.onrender.com/orders", Order)
         .then((response) => {
             console.log(response.data);
         })
@@ -174,7 +174,7 @@ export default function CreateInvoice() {
             console.log("Existing customer");
             invoice = { customerId: customerId }; // Use existing customer ID
         }
-        axios.post("http://localhost:3001/invoices", invoice)
+        axios.post("https://fullstack-backend-gaay.onrender.com/invoices", invoice)
           .then((response) =>{
               console.log(response.data.message);
               console.log(response.data.invoice);
@@ -200,7 +200,7 @@ export default function CreateInvoice() {
                     price: addedProduct.price,
                 };
                 try {
-                    const response = await axios.post("http://localhost:3001/products", product);
+                    const response = await axios.post("https://fullstack-backend-gaay.onrender.com/products", product);
                     console.log(response.data.message);
                     return fetchProducts(); // Return fetchProducts() for parallel execution.
                 } catch (error) {
@@ -240,7 +240,7 @@ export default function CreateInvoice() {
 
             }
             try {
-                const response = await axios.post("http://localhost:3001/customers", customer);
+                const response = await axios.post("https://fullstack-backend-gaay.onrender.com/customers", customer);
                 console.log(response.data.message);
                 const custom = await fetchCustomers(); 
                 await AddManualProduct();

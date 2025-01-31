@@ -25,7 +25,7 @@ export default function AddCustomer(){
             gstin: gstin.toLowerCase()
          };
     
-        axios.post("http://localhost:3001/customers", customer)
+        axios.post("https://fullstack-backend-gaay.onrender.com/customers", customer)
           .then((response) => {
             console.log(response.data.message);
             // setServerResponse(response.data.message);
