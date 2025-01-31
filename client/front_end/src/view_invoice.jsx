@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 import axios from 'axios';
 import html2canvas from "html2canvas";
 import visionLogo from './assets/logo.png';
-import stamp from './stamp.jpg';
+// import stamp from './stamp.jpg';
 import './view_invoice.css';
 export default function Invoice() {
   var today = new Date().toISOString().split('T')[0];
@@ -510,7 +510,7 @@ export default function Invoice() {
               <tr className='signature-row'>
                 <th style={{ backgroundColor: '#ff0000', color: 'white', borderBottom: '2px solid black' }} colSpan={4}>TERMS & CONDITIONS</th>
                 <th style={{ backgroundColor: '#ff0000', color: 'white', borderLeft: 'none' }} colSpan={2}>BANK DETAILES</th>
-                <th colSpan={3} rowSpan={4}><img className='stamp-img' src={stamp} alt="" /></th>
+                <th colSpan={3} rowSpan={4}><img className='stamp-img' alt="sign" /></th>
               </tr>
               <tr className='terms-condition-row'>
                 <td colSpan={4}>1. Goods once sold will not be taken back.</td>
