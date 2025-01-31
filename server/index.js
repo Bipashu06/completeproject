@@ -4,7 +4,11 @@ const cors = require('cors');
 const db = require('./models');
 
 const Port = process.env.PORT || 3001;
-app.use(cors());
+app.use(cors({
+    origin: "https://billingsystem-ljxt.onrender.com",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 app.use(express.json());
 
 const productRouter = require('./routes/products');
