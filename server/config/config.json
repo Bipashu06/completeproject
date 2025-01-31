@@ -15,10 +15,9 @@
   },
   "production": {
     "username": "root",
-    "password": "rR05GhJmfV4KIgD4hVxSphFNheEizOSF",
-    "database": "usersdb_1mbz",
-    "host": "dpg-cue5vpdsvqrc73d4rpig-a",
-    "dialect": "mysql",
-    "port": 5432
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   }
 }
