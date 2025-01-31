@@ -6,7 +6,7 @@ export default function DashBoard(){
     const [customers, setCustomers] = useState([]);
     const [invoice, setInvoice] = useState([]);
     function fetchProducts() {
-        fetch("https://sql12.freesqldatabase.com:3306/products")
+        fetch("https://sql12.freesqldatabase.com/products")
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to fetch products.");
@@ -21,7 +21,7 @@ export default function DashBoard(){
           });
       }
       function fetchCutomers(){
-        fetch("https://sql12.freesqldatabase.com:3306/customers") 
+        fetch("https://sql12.freesqldatabase.com/customers") 
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch customers.");
@@ -36,7 +36,7 @@ export default function DashBoard(){
         });
        };
        function fetchInvoices() {
-        fetch("https://sql12.freesqldatabase.com:3306/invoices")
+        fetch("https://sql12.freesqldatabase.com/invoices")
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to fetch invoices.");
