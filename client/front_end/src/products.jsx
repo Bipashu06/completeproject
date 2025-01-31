@@ -16,7 +16,7 @@ export default function AddProduct(){
           price
         };
     
-        axios.post("http://localhost:3001/products", product)
+        axios.post("http://sql12.freesqldatabase.com:3306/products", product)
           .then((response) => {
             console.log(response.data);
             console.log(response.data.message);
