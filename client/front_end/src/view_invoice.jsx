@@ -2,9 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { jsPDF } from "jspdf";
 import axios from 'axios';
 import html2canvas from "html2canvas";
-import PDFGenerator from './pdf';
 import visionLogo from './assets/logo.png';
-import stamp from './assets/stamp.jpg';
+import stamp from './stamp.jpg';
 import './view_invoice.css';
 export default function Invoice() {
   var today = new Date().toISOString().split('T')[0];
