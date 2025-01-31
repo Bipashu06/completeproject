@@ -14,10 +14,10 @@
     "dialect": "mysql"
   },
   "production": {
-     "username": "root",
-    "password": "MiwvobhRBlCyVJxeEIdhysBRuCnszpTu",
-    "database": "railway",
-    "host": "mysql.railway.internal",
+     "username": "sql12760472",
+    "password": "WbhqDSgmzT",
+    "database": "sql12760472",
+    "host": "sql12.freesqldatabase.com",
     "dialect": "mysql",
     "port": 3306
   }
