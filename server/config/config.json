@@ -17,7 +17,7 @@
      "username": "root",
     "password": "MiwvobhRBlCyVJxeEIdhysBRuCnszpTu",
     "database": "railway",
-    "host": "mysql://root:MiwvobhRBlCyVJxeEIdhysBRuCnszpTu@autorack.proxy.rlwy.net:15356/railway",
+    "host": "mysql.railway.internal",
     "dialect": "mysql",
     "port": 3306
   }
