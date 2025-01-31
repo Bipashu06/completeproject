@@ -221,7 +221,7 @@ export default function Invoice() {
       fetchOrders();
     }
     catch(error){
-      console.error(e);
+      console.error(error);
     }
   }
   async function SubmitChanges(e) {
