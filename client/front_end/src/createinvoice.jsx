@@ -46,24 +46,24 @@ export default function CreateInvoice() {
                 pdf.save("example.pdf");
             })
             .catch((error) => console.error("Error generating PDF:", error));
-            setDownloadInvoice(false);
-            setCName("");
-            setStreet("");
-            setCity("");
-            setState("");
-            setStateCode("");
-            setPin("");
-            setGstin("");
-            setPhone("");
-            setProductName("");
-            setHsn("");
-            setPrice("");
-            setAddedProducts([]);
+        setDownloadInvoice(false);
+        setCName("");
+        setStreet("");
+        setCity("");
+        setState("");
+        setStateCode("");
+        setPin("");
+        setGstin("");
+        setPhone("");
+        setProductName("");
+        setHsn("");
+        setPrice("");
+        setAddedProducts([]);
     };
-    async function SavePdf(){
+    async function SavePdf() {
         await fetchOrder(currentSavedInvoice);
     }
-    async function fetchCustomers(){
+    async function fetchCustomers() {
         try {
             const response = await fetch("https://fullstack-backend-gaay.onrender.com/customers");
             if (!response.ok) {
@@ -89,7 +89,7 @@ export default function CreateInvoice() {
             setError(error.message); // Assuming setError is a state updater for error messages
         }
     }
-    function fillInfo(index){
+    function fillInfo(index) {
         setCustomerId(customers[index].id);
         setCName(customers[index].c_name.toUpperCase());
         setStreet(customers[index].street_name.toUpperCase());
@@ -101,7 +101,7 @@ export default function CreateInvoice() {
         setPhone(customers[index].phone);
         setShowExistingUser(false);
     }
-    function fillInfoProduct(index){
+    function fillInfoProduct(index) {
         setProductName(products[index].product_name);
         setHsn(products[index].HSN);
         setPrice(products[index].price);
@@ -112,59 +112,61 @@ export default function CreateInvoice() {
     const [toPrintCustomer, setToPrintCustomer] = useState({});
     const [toPrintProducts, setToPrintProducts] = useState([]);
     const [currentSavedInvoice, setCurrentSavedInvoice] = useState({});
-    async function fetchOrder(invoiceObj){
+    async function fetchOrder(invoiceObj) {
         fetch("https://fullstack-backend-gaay.onrender.com/invoices", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({customer_id: invoiceObj.customer_id, 
+            body: JSON.stringify({
+                customer_id: invoiceObj.customer_id,
                 invoice_id: invoiceObj.invoice_id
-            }), 
+            }),
         })
-        .then((response) => {
-            if (!response.ok){
-                throw new Error(`Failed to fetch invoice. Status: ${response.status}`);
-            }
-            return response.json(); 
-        })
-        .then((data) => {
-            console.log("Fetched Invoice Data:", data);
-            const tempfetchedCustomer = data.customerDetails;
-            const tempfetchedProducts = data.orderedProducts;
-            //console.log(tempfetchedCustomer, tempfetchedProducts);
-            setToPrintCustomer(tempfetchedCustomer);
-            setToPrintProducts(tempfetchedProducts);
-        })
-        .catch((error) => {
-            console.error("Error fetching invoice:", error.message); 
-        });
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch invoice. Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("Fetched Invoice Data:", data);
+                const tempfetchedCustomer = data.customerDetails;
+                const tempfetchedProducts = data.orderedProducts;
+                //console.log(tempfetchedCustomer, tempfetchedProducts);
+                setToPrintCustomer(tempfetchedCustomer);
+                setToPrintProducts(tempfetchedProducts);
+            })
+            .catch((error) => {
+                console.error("Error fetching invoice:", error.message);
+            });
     }
     useEffect(() => {
-        if(toPrintProducts.length > 0){
+        if (toPrintProducts.length > 0) {
             generatePDF();
             setToPrintCustomer({});
             setToPrintProducts([]);
         }
     }, [toPrintProducts, toPrintCustomer]);
-    function SubmitOrder(Invoiceid){
+    function SubmitOrder(Invoiceid) {
         const Order = [];
-        for(var i = 0; i < addedProducts.length; i++){
-             Order.push({invoice_id: Invoiceid, 
-                        product: addedProducts[i].name.toLowerCase(),
-                        quantity: Number(addedProducts[i].quantity), 
-                        total_price: Number(addedProducts[i].quantity) * addedProducts[i].price
-                        });
+        for (var i = 0; i < addedProducts.length; i++) {
+            Order.push({
+                invoice_id: Invoiceid,
+                product: addedProducts[i].name.toLowerCase(),
+                quantity: Number(addedProducts[i].quantity),
+                total_price: Number(addedProducts[i].quantity) * addedProducts[i].price
+            });
         }
         axios.post("https://fullstack-backend-gaay.onrender.com/orders", Order)
-        .then((response) => {
-            console.log(response.data);
-        })
-        .catch((error) => {
-          console.error("There was an error adding the Invoices!", error);
-        });
+            .then((response) => {
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.error("There was an error adding the Invoices!", error);
+            });
     }
-    async function submitInvoice(arr){
+    async function submitInvoice(arr) {
         let invoice = {};
 
         if (Array.isArray(arr) && arr.length > 0) {
@@ -175,23 +177,23 @@ export default function CreateInvoice() {
             invoice = { customerId: customerId }; // Use existing customer ID
         }
         axios.post("https://fullstack-backend-gaay.onrender.com/invoices", invoice)
-          .then((response) =>{
-              console.log(response.data.message);
-              console.log(response.data.invoice);
-              SubmitOrder(response.data.invoice.invoice_id);
-              setCurrentSavedInvoice(response.data.invoice);
-              setDownloadInvoice(true);
-          })
-          .catch((error) => {
-            console.error("There was an error adding the Invoices!", error);
-          });
+            .then((response) => {
+                console.log(response.data.message);
+                console.log(response.data.invoice);
+                SubmitOrder(response.data.invoice.invoice_id);
+                setCurrentSavedInvoice(response.data.invoice);
+                setDownloadInvoice(true);
+            })
+            .catch((error) => {
+                console.error("There was an error adding the Invoices!", error);
+            });
     }
     async function AddManualProduct() {
         const productPromises = addedProducts.map(async (addedProduct) => {
             const isProductExists = products.some(
                 (item) => item.HSN?.toLowerCase() === addedProduct.hsn?.toLowerCase()
             );
-    
+
             if (!isProductExists) {
                 console.log("product didn't exist");
                 const product = {
@@ -209,7 +211,7 @@ export default function CreateInvoice() {
                 }
             }
         });
-    
+
         // Wait for all product operations to complete.
         try {
             await Promise.all(productPromises);
@@ -217,37 +219,37 @@ export default function CreateInvoice() {
             console.error("An error occurred during the product addition process:", error);
         }
     }
-    
+
     async function handleSubmit(e) {
         e.preventDefault();
         const isCustomerExists = customers.some(
-            (item) => 
-                item.c_name === cName.toLowerCase() || 
-                item.gstin === gstin.toLowerCase() || 
+            (item) =>
+                item.c_name === cName.toLowerCase() ||
+                item.gstin === gstin.toLowerCase() ||
                 item.phone === phone
         );
-        
+
         if (!isCustomerExists) {
-            const customer = { 
+            const customer = {
                 companyName: cName.toLowerCase(),
-                street: street.toLowerCase(), 
+                street: street.toLowerCase(),
                 city: city.toLowerCase(),
                 state: state.toLowerCase(),
-                pin: pin, 
-                phone: phone, 
-                stateCode: stateCode, 
+                pin: pin,
+                phone: phone,
+                stateCode: stateCode,
                 gstin: gstin.toLowerCase()
 
             }
             try {
                 const response = await axios.post("https://fullstack-backend-gaay.onrender.com/customers", customer);
                 console.log(response.data.message);
-                const custom = await fetchCustomers(); 
+                const custom = await fetchCustomers();
                 await AddManualProduct();
                 setCustomers(custom);
                 await submitInvoice(custom);
-                
-            } catch (error){
+
+            } catch (error) {
                 console.error("There was an error adding the user!", error);
             }
         } else {
@@ -256,7 +258,7 @@ export default function CreateInvoice() {
         }
 
     }
-    
+
     function handleAddProduct() {
         if (productName && hsn && price && quantity) {
             setAddedProducts((prevProducts) => [
@@ -277,7 +279,7 @@ export default function CreateInvoice() {
             setShowError(true);
         }
     }
-    function RemoveAddedProduct(i){
+    function RemoveAddedProduct(i) {
         setAddedProducts(addedProducts.filter((_, index) => index !== i));
     }
     useEffect(() => {
@@ -285,7 +287,7 @@ export default function CreateInvoice() {
         fetchProducts();
     }, []);
 
-    
+
 
     return (
         <>
@@ -294,21 +296,21 @@ export default function CreateInvoice() {
                     <div className="download-popup">
                         <h2>Invoice saved</h2>
                         <img onClick={(e) => {
-                             setDownloadInvoice(false);
-                             setCName("");
-                             setStreet("");
-                             setCity("");
-                             setState("");
-                             setStateCode("");
-                             setPin("");
-                             setGstin("");
-                             setPhone("");
-                             setProductName("");
-                             setHsn("");
-                             setPrice("");
-                             setAddedProducts([]);
-                             console.log(customers);
-                             console.log(products);
+                            setDownloadInvoice(false);
+                            setCName("");
+                            setStreet("");
+                            setCity("");
+                            setState("");
+                            setStateCode("");
+                            setPin("");
+                            setGstin("");
+                            setPhone("");
+                            setProductName("");
+                            setHsn("");
+                            setPrice("");
+                            setAddedProducts([]);
+                            console.log(customers);
+                            console.log(products);
                         }} width="30" height="30" src="https://img.icons8.com/ios-glyphs/60/multiply.png" alt="multiply" />
                         <button onClick={SavePdf} id='savepdf-btn'>Save as Pdf</button>
                     </div>
@@ -317,19 +319,25 @@ export default function CreateInvoice() {
             <form action="" className='create_invoice_form'>
                 <input type="date" onChange={(e) => setCurrentDate(e.target.value)} value={currentDate} />
                 <h3>Customer Details</h3>
-                <button onClick={(e) =>{ e.preventDefault(); setShowExistingUser(true)}} id='selectuser_btn'>Select From Database</button>
+                <button onClick={(e) => { e.preventDefault(); setShowExistingUser(true) }} id='selectuser_btn'>Select From Database</button>
                 <br />
-                <input type="text" value={cName} onChange={(e) => setCName(e.target.value.toUpperCase())} placeholder='company name' />  <br />
-                <input type="text" value={street} onChange={(e) => setStreet(e.target.value.toUpperCase())} placeholder='street' />  <br />
-                <input type="text" value={city} onChange={(e) => setCity(e.target.value.toUpperCase())} placeholder='city' />  <br />
-                <input type="text" value={state} onChange={(e) => setState(e.target.value.toUpperCase())} placeholder='state' />  <br />
-                <input type="number" min={0} value={stateCode} onChange={(e) => setStateCode(e.target.value)} placeholder='state code' />  <br />
-                <input type="number" min={0} value={pin} onChange={(e) => setPin(e.target.value)} placeholder='pin' />  <br />
-                <input type="text" value={gstin} onChange={(e) => setGstin(e.target.value.toUpperCase())} placeholder='GSTIN' />  <br />
-                <input type="number" min={0} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder='Phone' />  <br />
+                <div className="">
+                    <input type="text" value={cName} onChange={(e) => setCName(e.target.value.toUpperCase())} placeholder='company name' />
+                    <input type="text" value={street} onChange={(e) => setStreet(e.target.value.toUpperCase())} placeholder='street' />
+                    <input type="text" value={city} onChange={(e) => setCity(e.target.value.toUpperCase())} placeholder='city' />
+                </div>
+                <div className="">
+                    <input type="text" value={state} onChange={(e) => setState(e.target.value.toUpperCase())} placeholder='state' />
+                    <input type="number" min={0} value={stateCode} onChange={(e) => setStateCode(e.target.value)} placeholder='state code' />
+                    <input type="number" min={0} value={pin} onChange={(e) => setPin(e.target.value)} placeholder='pin' />
+                </div>
+                <div className="">
+                    <input type="text" value={gstin} onChange={(e) => setGstin(e.target.value.toUpperCase())} placeholder='GSTIN' />  <br />
+                    <input type="number" min={0} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder='Phone' />  <br />
+                </div>
                 <br />
                 <h3>Products</h3>
-                <button onClick={(e) => { e.preventDefault(); setShowExistingProducts(true)}} id='selectuser_btn'>Select From Database</button><br />
+                <button onClick={(e) => { e.preventDefault(); setShowExistingProducts(true) }} id='selectuser_btn'>Select From Database</button><br />
                 <div className="products-conatainer">
                     {addedProducts.length > 0 && (addedProducts.map((product, index) => (
                         <div className="product" key={index}>
@@ -403,7 +411,7 @@ export default function CreateInvoice() {
                                 </thead>
                                 <tbody>
                                     {customers.map((customer, index) => (
-                                        <tr onClick = {() => fillInfo(index)} key={index}>
+                                        <tr onClick={() => fillInfo(index)} key={index}>
                                             <td>{customer.id}</td>
                                             <td><strong>{customer.c_name}</strong></td>
                                             <td>{customer.street_name}</td>
@@ -464,17 +472,17 @@ export default function CreateInvoice() {
                 <div className="row">
                     <div className="column">
                         <p id='billing-address'><strong>{toPrintCustomer.c_name} COMPANY</strong>
-                        <br/>{toPrintCustomer.street_name}, {toPrintCustomer.city},<br/>
-                           {toPrintCustomer.state}, {toPrintCustomer.state_code}
+                            <br />{toPrintCustomer.street_name}, {toPrintCustomer.city},<br />
+                            {toPrintCustomer.state}, {toPrintCustomer.state_code}
                         </p>
                         <p>STATE:- {toPrintCustomer.state}</p>
                         <p>GSTIN:- {toPrintCustomer.gstin}</p>
                         <p>Phone:- {toPrintCustomer.phone}</p>
                     </div>
                     <div className="column">
-                    <p id='billing-address'><strong>{toPrintCustomer.c_name} COMPANY</strong>
-                        <br/>{toPrintCustomer.street_name}, {toPrintCustomer.city},<br/>
-                           {toPrintCustomer.state}, {toPrintCustomer.state_code}
+                        <p id='billing-address'><strong>{toPrintCustomer.c_name} COMPANY</strong>
+                            <br />{toPrintCustomer.street_name}, {toPrintCustomer.city},<br />
+                            {toPrintCustomer.state}, {toPrintCustomer.state_code}
                         </p>
                         <p>STATE:- {toPrintCustomer.state}</p>
                         <p>GSTIN:- {toPrintCustomer.gstin}</p>
@@ -494,9 +502,9 @@ export default function CreateInvoice() {
                         <th>TOTAL</th>
                     </tr>
                     {addedProducts.length > 0 && (
-                       addedProducts.map((product, index) => (
+                        addedProducts.map((product, index) => (
                             <tr key={index}>
-                                <td>{index+1}</td>
+                                <td>{index + 1}</td>
                                 <td>{product.name}</td>
                                 <td>{product.hsn}</td>
                                 <td>{product.quantity}</td>
@@ -506,7 +514,7 @@ export default function CreateInvoice() {
                                 <td>.</td>
                                 <td>{product.quantity * product.price}</td>
                             </tr>
-                       )) 
+                        ))
                     )}
                     <tr>
                         <td></td>
@@ -520,26 +528,26 @@ export default function CreateInvoice() {
                         <td>177/-</td>
                     </tr>
                     <tr>
-                        <td  style={{borderTop: '1px solid black'}} colSpan={5}>.</td>
-                        <td style={{borderTop: '1px solid black'}}>.</td>
-                        <td style={{borderTop: '1px solid black'}}>.</td>
-                        <td style={{borderTop: '1px solid black'}}>.</td>
-                        <td style={{borderTop: '1px solid black'}}>.</td>
+                        <td style={{ borderTop: '1px solid black' }} colSpan={5}>.</td>
+                        <td style={{ borderTop: '1px solid black' }}>.</td>
+                        <td style={{ borderTop: '1px solid black' }}>.</td>
+                        <td style={{ borderTop: '1px solid black' }}>.</td>
+                        <td style={{ borderTop: '1px solid black' }}>.</td>
                     </tr>
                     <tr >
-                        <td style={{borderTop: '1px solid black'}} colSpan={5}>TOTAL</td>
-                        <td style={{borderTop: '1px solid black'}} >.</td>
-                        <td style={{borderTop: '1px solid black'}} >11,990/-</td>
-                        <td style={{borderTop: '1px solid black'}}  colSpan={2}>14,042/-</td>
+                        <td style={{ borderTop: '1px solid black' }} colSpan={5}>TOTAL</td>
+                        <td style={{ borderTop: '1px solid black' }} >.</td>
+                        <td style={{ borderTop: '1px solid black' }} >11,990/-</td>
+                        <td style={{ borderTop: '1px solid black' }} colSpan={2}>14,042/-</td>
                     </tr>
                     <tr className='second-header-row'>
-                        <th style={{whiteSpace: 'nowrap'}}>TAX TYPE</th>
+                        <th style={{ whiteSpace: 'nowrap' }}>TAX TYPE</th>
                         <th>TAXABLE AMOUNT</th>
                         <th>RATE</th>
                         <th colSpan={3}>TAX AMOUNT</th>
                         <th colSpan={3}>AMOUNTS</th>
                     </tr>
-                    <tr className='second-header-row-amount-holder' style={{backgroundColor: 'white', color:'black'}}>
+                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
                         <td>IGST</td>
                         <td>11990/-</td>
                         <td>18%</td>
@@ -547,29 +555,29 @@ export default function CreateInvoice() {
                         <td>Sub Total :</td>
                         <td colSpan={2}>14,042/-</td>
                     </tr>
-                    <tr className='second-header-row-amount-holder' style={{backgroundColor: 'white', color:'black'}}>
+                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
                         <td colSpan={6}>.</td>
                         <td>Round off :</td>
                         <td colSpan={2}>0/-</td>
                     </tr>
-                    <tr className='second-header-row-amount-holder' style={{backgroundColor: 'white', color:'black'}}>
+                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
                         <td colSpan={6}>.</td>
-                        <td style={{borderTop: '1px solid black'}}>Total :</td>
-                        <td style={{borderTop: '1px solid black'}} colSpan={2}>14,042/-</td>
+                        <td style={{ borderTop: '1px solid black' }}>Total :</td>
+                        <td style={{ borderTop: '1px solid black' }} colSpan={2}>14,042/-</td>
                     </tr>
-                    <tr className='second-header-row-amount-holder' style={{backgroundColor: 'white', color:'black'}}>
+                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
                         <td colSpan={4}>Total Tax Amount</td>
                         <td colSpan={2}>2142/-</td>
                         <td>Recieved :</td>
                         <td colSpan={2}>0/-</td>
                     </tr>
-                    <tr className='second-header-row-amount-holder' style={{backgroundColor: 'white', color:'black'}}>
+                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
                         <td colSpan={6}>.</td>
-                        <td style={{borderTop: '1px solid black', borderBottom: '1px solid black'}}>Balance :</td>
-                        <td style={{borderTop: '1px solid black', borderBottom: '1px solid black'}} colSpan={2}>14,042/-</td>
+                        <td style={{ borderTop: '1px solid black', borderBottom: '1px solid black' }}>Balance :</td>
+                        <td style={{ borderTop: '1px solid black', borderBottom: '1px solid black' }} colSpan={2}>14,042/-</td>
                     </tr>
                     <tr className='signature-row'>
-                        <th style={{backgroundColor: '#ff0000', color: 'white'}} colSpan={6}>PREFORMA INVOICE AMOUNT IN WORDS</th>
+                        <th style={{ backgroundColor: '#ff0000', color: 'white' }} colSpan={6}>PREFORMA INVOICE AMOUNT IN WORDS</th>
                         <th colSpan={3}>For Vision Automation &</th>
                     </tr>
                     <tr className='signature-row'>
@@ -577,8 +585,8 @@ export default function CreateInvoice() {
                         <th colSpan={3}>Technologies</th>
                     </tr>
                     <tr className='signature-row'>
-                        <th style={{backgroundColor: '#ff0000', color: 'white', borderBottom: '2px solid black'}} colSpan={4}>TERMS & CONDITIONS</th>
-                        <th style={{backgroundColor: '#ff0000', color: 'white', borderLeft: 'none'}} colSpan={2}>BANK DETAILES</th>
+                        <th style={{ backgroundColor: '#ff0000', color: 'white', borderBottom: '2px solid black' }} colSpan={4}>TERMS & CONDITIONS</th>
+                        <th style={{ backgroundColor: '#ff0000', color: 'white', borderLeft: 'none' }} colSpan={2}>BANK DETAILES</th>
                         <th colSpan={3} rowSpan={4}><img className='stamp-img' alt="sign" /></th>
                     </tr>
                     <tr className='terms-condition-row'>
@@ -596,14 +604,14 @@ export default function CreateInvoice() {
                     <tr>
                         <td colSpan={4}></td>
                         <td colSpan={2}>IFSC: <b>HDFC0004407</b></td>
-                        <td style={{textAlign: 'left', borderTop: '1px solid black', borderBottom: '1px solid black'}} colSpan={3} rowSpan={2}>Recieved by:</td>
+                        <td style={{ textAlign: 'left', borderTop: '1px solid black', borderBottom: '1px solid black' }} colSpan={3} rowSpan={2}>Recieved by:</td>
                     </tr>
                     <tr>
-                        <td style={{textAlign: 'left', borderTop: '1px solid black'}} colSpan={6}>Note:- For any Quiry Please contact Mr. Nadeem Khan on Mob. No. 8396805557.</td>
+                        <td style={{ textAlign: 'left', borderTop: '1px solid black' }} colSpan={6}>Note:- For any Quiry Please contact Mr. Nadeem Khan on Mob. No. 8396805557.</td>
                     </tr>
-                   <tr>
-                        <th style={{backgroundColor: '#ff0000', color: 'white', fontSize: '16px', borderTop: '3px solid black'}} colSpan={9}>THANK YOU FOR YOUR BUISNESS</th>
-                   </tr>
+                    <tr>
+                        <th style={{ backgroundColor: '#ff0000', color: 'white', fontSize: '16px', borderTop: '3px solid black' }} colSpan={9}>THANK YOU FOR YOUR BUISNESS</th>
+                    </tr>
                 </table>
 
             </div>
