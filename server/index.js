@@ -6,8 +6,7 @@ const db = require('./models');
 const Port = process.env.PORT || 3001;
 app.use(cors({
     origin: "https://autonovabilling.onrender.com",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 app.use(express.json());
 
