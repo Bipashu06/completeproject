@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './dashboard.css';
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 
 export default function DashBoard(){
     const [products, setProducts] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './view_customers.css';
 import axios from 'axios';
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 
 function ViewCustomers() {
   const [customers, setCustomers] = useState([]);

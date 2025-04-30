@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 import axios from 'axios';
 import html2canvas from "html2canvas";
 import noinvoice from './assets/noinvoice.png';
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 
 import './view_invoice.css';
 export default function Invoice() {

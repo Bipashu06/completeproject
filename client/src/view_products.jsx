@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './view_products.css';
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 import errorImage from './assets/error.png';
 import noorder from './assets/noorder.png';
 function ViewProducts(){

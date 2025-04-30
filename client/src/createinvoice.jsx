@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 
 import axios from "axios";
 import './createinvoice.css';

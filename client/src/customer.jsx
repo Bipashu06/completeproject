@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './customer.css';
 import axios from "axios";
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 
 
 export default function AddCustomer() {

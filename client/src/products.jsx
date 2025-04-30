@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './products.css';
 import axios from "axios";
-const apiurl = "http://localhost:3001"
+const apiurl = "https://billingapi-f2vf.onrender.com"
 
 export default function AddProduct() {
 
