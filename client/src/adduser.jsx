@@ -14,7 +14,6 @@ function AddUser() {
 
     axios.post("http://localhost/website/add_user.php", user)
       .then((response) => {
-        console.log(response.data.message);
         setServerResponse(response.data.message);
       })
       .catch((error) => {

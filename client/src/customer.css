@@ -1,0 +1,41 @@
+#add-customer-form{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+#add-customer-form input[type='submit']{
+   border: none;
+   font-size: 18px;
+   background-color: greenyellow;
+   padding: 8px 18px;
+   font-weight: 500;
+}
+#add-customer-form label{
+   color: black;
+   margin-bottom: 4px;
+   display: block;
+
+}
+input{
+    border: 1px solid rgb(201, 201, 201);
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+.create_invoice_form input:focus{
+   outline: none;
+   border: 1px solid gray;
+}
+@media (max-width: 600px){
+   #add-customer-form{
+      grid-template-columns: repeat(2, 1fr);
+  }
+   #add-customer-form input{
+      width: 100%;
+  }
+}
+@media (max-width: 412px){
+   #add-customer-form{
+      grid-template-columns: repeat(1, 1fr);
+  }
+}

@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "",
+    "password": null,
     "database": "usersdb",
     "host": "127.0.0.1",
     "dialect": "mysql"
@@ -14,11 +14,11 @@
     "dialect": "mysql"
   },
   "production": {
-     "username": "sql12760472",
-    "password": "WbhqDSgmzT",
-    "database": "sql12760472",
-    "host": "sql12.freesqldatabase.com",
+     "username": "root",
+    "password": "pSkzLBtPPjoiAAfDWTRQeWZblKFBguFA",
+    "database": "railway",
+    "host": "nozomi.proxy.rlwy.net",
     "dialect": "mysql",
-    "port": 3306
+    "port": 25147
   }
 }

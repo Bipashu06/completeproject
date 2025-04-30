@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+const apiurl = "http://localhost:3001"
+
 import axios from "axios";
 import './createinvoice.css';
 import { jsPDF } from "jspdf";
@@ -32,9 +34,18 @@ export default function CreateInvoice() {
     const [price, setPrice] = useState(null);
     const [quantity, setQuantity] = useState(0);
 
+    const [downloadInvoice, setDownloadInvoice] = useState(false);
+    const [toPrintCustomer, setToPrintCustomer] = useState({});
+    const [toPrintProducts, setToPrintProducts] = useState([]);
+    const [currentSavedInvoice, setCurrentSavedInvoice] = useState({});
     const pdfRef = useRef();
     const generatePDF = () => {
+        if (Object.keys(toPrintCustomer).length === 0 || toPrintProducts.length === 0) {
+            alert("somthing went wrong goto invoives to download pdf")
+            return null;
+        }
         const input = pdfRef.current;
+        input.style.width='862px';
         html2canvas(input, { scale: 2 })
             .then((canvas) => {
                 const imgData = canvas.toDataURL("image/png");
@@ -65,11 +76,12 @@ export default function CreateInvoice() {
     }
     async function fetchCustomers() {
         try {
-            const response = await fetch("https://fullstack-backend-gaay.onrender.com/customers");
+            const response = await fetch(`${apiurl}/customers`);
             if (!response.ok) {
                 throw new Error("Failed to fetch customers.");
             }
             const data = await response.json();
+
             setCustomers(data.customers); // Assuming setCustomers is a state updater function
             return data;
         } catch (error) {
@@ -78,7 +90,7 @@ export default function CreateInvoice() {
     }
     async function fetchProducts() {
         try {
-            const response = await fetch("https://fullstack-backend-gaay.onrender.com/products");
+            const response = await fetch(`${apiurl}/products`);
             if (!response.ok) {
                 throw new Error("Failed to fetch products.");
             }
@@ -86,7 +98,6 @@ export default function CreateInvoice() {
             setProducts(data.products); // Assuming setProducts is a state updater function
         } catch (error) {
             console.error("Error fetching products:", error.message);
-            setError(error.message); // Assuming setError is a state updater for error messages
         }
     }
     function fillInfo(index) {
@@ -108,19 +119,16 @@ export default function CreateInvoice() {
         setQuantity(0);
         setShowExistingProducts(false);
     }
-    const [downloadInvoice, setDownloadInvoice] = useState(false);
-    const [toPrintCustomer, setToPrintCustomer] = useState({});
-    const [toPrintProducts, setToPrintProducts] = useState([]);
-    const [currentSavedInvoice, setCurrentSavedInvoice] = useState({});
+
     async function fetchOrder(invoiceObj) {
-        fetch("https://fullstack-backend-gaay.onrender.com/invoices", {
+        fetch(`${apiurl}/invoices/fullorder`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                customer_id: invoiceObj.customer_id,
-                invoice_id: invoiceObj.invoice_id
+                customerId: invoiceObj.customer_id,
+                invoiceId: invoiceObj.invoice_id
             }),
         })
             .then((response) => {
@@ -130,10 +138,8 @@ export default function CreateInvoice() {
                 return response.json();
             })
             .then((data) => {
-                console.log("Fetched Invoice Data:", data);
                 const tempfetchedCustomer = data.customerDetails;
                 const tempfetchedProducts = data.orderedProducts;
-                //console.log(tempfetchedCustomer, tempfetchedProducts);
                 setToPrintCustomer(tempfetchedCustomer);
                 setToPrintProducts(tempfetchedProducts);
             })
@@ -142,7 +148,7 @@ export default function CreateInvoice() {
             });
     }
     useEffect(() => {
-        if (toPrintProducts.length > 0) {
+        if (toPrintProducts.length > 0 && Object.keys(toPrintCustomer).length > 0) {
             generatePDF();
             setToPrintCustomer({});
             setToPrintProducts([]);
@@ -158,10 +164,7 @@ export default function CreateInvoice() {
                 total_price: Number(addedProducts[i].quantity) * addedProducts[i].price
             });
         }
-        axios.post("https://fullstack-backend-gaay.onrender.com/orders", Order)
-            .then((response) => {
-                console.log(response.data);
-            })
+        axios.post(`${apiurl}/orders`, Order)
             .catch((error) => {
                 console.error("There was an error adding the Invoices!", error);
             });
@@ -170,16 +173,13 @@ export default function CreateInvoice() {
         let invoice = {};
 
         if (Array.isArray(arr) && arr.length > 0) {
-            console.log("New customer added");
             invoice = { customerId: arr[arr.length - 1].id }; // Use the last added customer's ID
         } else {
-            console.log("Existing customer");
+            
             invoice = { customerId: customerId }; // Use existing customer ID
         }
-        axios.post("https://fullstack-backend-gaay.onrender.com/invoices", invoice)
+        axios.post(`${apiurl}/invoices`, invoice)
             .then((response) => {
-                console.log(response.data.message);
-                console.log(response.data.invoice);
                 SubmitOrder(response.data.invoice.invoice_id);
                 setCurrentSavedInvoice(response.data.invoice);
                 setDownloadInvoice(true);
@@ -202,8 +202,7 @@ export default function CreateInvoice() {
                     price: addedProduct.price,
                 };
                 try {
-                    const response = await axios.post("https://fullstack-backend-gaay.onrender.com/products", product);
-                    console.log(response.data.message);
+                    const response = await axios.post(`${apiurl}/products`, product);
                     return fetchProducts(); // Return fetchProducts() for parallel execution.
                 } catch (error) {
                     console.error("There was an error adding the product!", error);
@@ -222,6 +221,15 @@ export default function CreateInvoice() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+       
+        if(!cName || !street || !city || !state || !stateCode || !pin || !gstin || !phone){
+            alert('Fill out all Information');
+            return null;
+        }
+        if (addedProducts.length === 0) {
+            alert("products cant be empty")
+            return null;
+        }
         const isCustomerExists = customers.some(
             (item) =>
                 item.c_name === cName.toLowerCase() ||
@@ -241,9 +249,13 @@ export default function CreateInvoice() {
                 gstin: gstin.toLowerCase()
 
             }
+            setShowLoader(true);
             try {
-                const response = await axios.post("https://fullstack-backend-gaay.onrender.com/customers", customer);
-                console.log(response.data.message);
+                const response = await axios.post(`${apiurl}/customers`, customer);
+                if(response.data.error){
+                    alert(response.data.error);
+                    return null;
+                }
                 const custom = await fetchCustomers();
                 await AddManualProduct();
                 setCustomers(custom);
@@ -251,6 +263,8 @@ export default function CreateInvoice() {
 
             } catch (error) {
                 console.error("There was an error adding the user!", error);
+            }finally {
+                setShowLoader(false);
             }
         } else {
             await AddManualProduct();
@@ -286,11 +300,12 @@ export default function CreateInvoice() {
         fetchCustomers();
         fetchProducts();
     }, []);
-
+    const [showLoader, setShowLoader] = useState(false);
 
 
     return (
         <>
+            
             {downloadInvoice && (
                 <div className="download-popup-container">
                     <div className="download-popup">
@@ -309,16 +324,18 @@ export default function CreateInvoice() {
                             setHsn("");
                             setPrice("");
                             setAddedProducts([]);
-                            console.log(customers);
-                            console.log(products);
                         }} width="30" height="30" src="https://img.icons8.com/ios-glyphs/60/multiply.png" alt="multiply" />
                         <button onClick={SavePdf} id='savepdf-btn'>Save as Pdf</button>
                     </div>
                 </div>
             )}
-            <form action="" className='create_invoice_form'>
-                <input type="date" onChange={(e) => setCurrentDate(e.target.value)} value={currentDate} />
-                <h3>Customer Details</h3>
+            <form id='create-invoice-form' className='create_invoice_form'>
+            {showLoader && (
+                <div className="loader-container">
+                    <span class="loader"></span>
+                </div>
+            )}
+                <h2 style={{ padding: '8px' }}>Customer Details</h2>
                 <button onClick={(e) => { e.preventDefault(); setShowExistingUser(true) }} id='selectuser_btn'>Select From Database</button>
                 <br />
                 <div className="">
@@ -328,35 +345,96 @@ export default function CreateInvoice() {
                 </div>
                 <div className="">
                     <input type="text" value={state} onChange={(e) => setState(e.target.value.toUpperCase())} placeholder='state' />
-                    <input type="number" min={0} value={stateCode} onChange={(e) => setStateCode(e.target.value)} placeholder='state code' />
-                    <input type="number" min={0} value={pin} onChange={(e) => setPin(e.target.value)} placeholder='pin' />
+                    <input type="number" 
+                      onWheel={(e) => e.target.blur()}
+                      min={1}
+                      onKeyDown={(e) => {
+                        const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }} 
+                    value={stateCode} onChange={(e) => setStateCode(e.target.value)} placeholder='state code' />
+                    <input type="number" 
+                      onWheel={(e) => e.target.blur()}
+                      min={1}
+                      onKeyDown={(e) => {
+                        const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }} 
+                    value={pin} onChange={(e) => setPin(e.target.value)} placeholder='pin' />
                 </div>
                 <div className="">
                     <input type="text" value={gstin} onChange={(e) => setGstin(e.target.value.toUpperCase())} placeholder='GSTIN' />  <br />
-                    <input type="number" min={0} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder='Phone' />  <br />
+                    <input type="number" value={phone} onChange={(e) => {
+                        setPhone(e.target.value)
+                    }} placeholder='Phone'
+                    onWheel={(e) => e.target.blur()}
+                    min={1}
+                    onKeyDown={(e) => {
+                        const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+                        if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    /><br />
                 </div>
                 <br />
-                <h3>Products</h3>
+                <h2 style={{ padding: '8px' }}>Products</h2>
                 <button onClick={(e) => { e.preventDefault(); setShowExistingProducts(true) }} id='selectuser_btn'>Select From Database</button><br />
                 <div className="products-conatainer">
-                    {addedProducts.length > 0 && (addedProducts.map((product, index) => (
-                        <div className="product" key={index}>
-                            <p>{product.name}</p>
-                            <p>{product.hsn}</p>
-                            <p>{product.price}₹</p>
-                            <p>{product.quantity}</p>
-                            <button id='added-product-remove-btn' onClick={() => RemoveAddedProduct(index)}>Remove</button>
+                    {addedProducts.length > 0 && (
+                        <div className="product">
+                            <p><strong>Product</strong></p>
+                            <p><strong>Product Id</strong></p>
+                            <p><strong>Price</strong></p>
+                            <p><strong>Quantity</strong></p>
                         </div>
-                    )))}
+                    )}
+                    {addedProducts.length > 0 && (
+                        addedProducts.map((product, index) => (
+                            <div className="product" key={index}>
+                                <p>{product.name}</p>
+                                <p>{product.hsn}</p>
+                                <p>{product.price}₹</p>
+                                <p>{product.quantity}</p>
+                                <button id='added-product-remove-btn' onClick={() => RemoveAddedProduct(index)}>Remove</button>
+                            </div>)
+                        )
+                    )}
                 </div>
                 <form action="">
                     <input type="text" value={productName} onChange={(e) => { setProductName(e.target.value); setShowError(false); }} placeholder='Product Name' />
                     <input type="text" value={hsn} onChange={(e) => { setHsn(e.target.value); setShowError(false); }} placeholder='hsn' />
-                    <input type="number" min={1} value={price} onChange={(e) => { setPrice(e.target.value); setShowError(false); }} placeholder='Price' />
-                    <input type="number" min={1} value={quantity} onChange={(e) => { setQuantity(e.target.value); setShowError(false); }} placeholder='Qantity' /><br />
-                    <button onClick={handleAddProduct}>Add Product</button><br />
+                    <input type="number"
+                      onWheel={(e) => e.target.blur()}
+                      min={1}
+                      onKeyDown={(e) => {
+                          const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+                          if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                    value={price} onChange={(e) => { setPrice(e.target.value); setShowError(false); }} placeholder='Price' />
+                    <input type="number" 
+                      onWheel={(e) => e.target.blur()}
+                      min={1}
+                      onKeyDown={(e) => {
+                          const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
+                          if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                    value={quantity} onChange={(e) => { setQuantity(e.target.value); setShowError(false); }} placeholder='Qantity' /><br />
+                    <button style={{
+                        border: 'none', backgroundColor: '#469dc0',
+                        padding: '4px 4px', borderRadius: '4px', margin: '6px',
+                        fontSize: '15px', color: 'white', cursor: 'pointer'
+                    }} onClick={handleAddProduct}>Add Product</button><br />
                 </form>
-                <input type="submit" value={"Create"} onClick={handleSubmit} id='selectuser_btn' />
+                <input type="submit" value={"Create"} onClick={handleSubmit} id='create_invoice_btn' />
             </form>
             {showExistingProducts && (
                 <div className="existinguser_table_popup">
@@ -439,181 +517,65 @@ export default function CreateInvoice() {
                 </div>
             )}
 
-            <div ref={pdfRef} className="invoice-pdf">
-                <div className="toppest-div">
-                    <img src={visionLogo} alt="" />
-                    <h2>PROFORMA INVOICE</h2>
-                    <h2>GSTIN:-06KDBPK9657M1ZQ</h2>
-                </div>
-                <div className="company-name-header">
-                    <h1>VISION AUTOMATION & TECHNOLOGIES</h1>
-                </div>
-                <div className="address-div">
-                    <p>NEAR VAIDIK SADHAN ASHRAM, KHAJURI ROAD, SHADIPUR , YAMUNA NAGAR <br />
-                        HARYANA, 135001 <br />
-                        Ph. No. 8813806331 , 8396805557</p>
-                </div>
-                <div className="row">
-                    <div className="column">
-                        <p>PI NO. :- 33213</p>
-                        <p>PI DATE :- {currentDate}</p>
-                        <p>STATE :- HARYANA</p>
-                        <p>STATE CODE :- 6</p>
-                        <h3>BILLING TO:</h3>
-                    </div>
-                    <div className="column">
-                        <p>P.O. NO. :- 6575</p>
-                        <p>P.O. DATE :- {currentDate}</p>
-                        <p>PR. DATE :- {currentDate}</p>
-                        <p>.</p>
-                        <h3>SHIPPING TO:</h3>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="column">
-                        <p id='billing-address'><strong>{toPrintCustomer.c_name} COMPANY</strong>
-                            <br />{toPrintCustomer.street_name}, {toPrintCustomer.city},<br />
-                            {toPrintCustomer.state}, {toPrintCustomer.state_code}
+            <div ref={pdfRef} className="invoice" id='created-invoice'>
+                <div className="header">
+                    <div className="company-info">
+                        <h2>AutoNova Techonologies</h2>
+                        <p>
+                            123 Automation Street<br />
+                            Tech City, StateX, ST123<br />
+                            GSTIN: 12ABCDE3456FZ1Z
                         </p>
-                        <p>STATE:- {toPrintCustomer.state}</p>
-                        <p>GSTIN:- {toPrintCustomer.gstin}</p>
-                        <p>Phone:- {toPrintCustomer.phone}</p>
                     </div>
-                    <div className="column">
-                        <p id='billing-address'><strong>{toPrintCustomer.c_name} COMPANY</strong>
-                            <br />{toPrintCustomer.street_name}, {toPrintCustomer.city},<br />
-                            {toPrintCustomer.state}, {toPrintCustomer.state_code}
-                        </p>
-                        <p>STATE:- {toPrintCustomer.state}</p>
-                        <p>GSTIN:- {toPrintCustomer.gstin}</p>
-                        <p>Phone:- {toPrintCustomer.phone}</p>
+                    <div className="date">
+                        <p><strong>Invoice Date:</strong> {currentDate.split(",")[0].replaceAll('/', '-')}</p>
+                        <p><strong>Invoice No:</strong> INV-{673}</p>
                     </div>
                 </div>
-                <table className='product-info-table' cellSpacing={0}>
-                    <tr>
-                        <th>SR.NO.</th>
-                        <th>PRODUCT/SERVICE</th>
-                        <th>HSN</th>
-                        <th>QTY</th>
-                        <th>UNIT</th>
-                        <th>RATE</th>
-                        <th>AMOUNT</th>
-                        <th>GST %</th>
-                        <th>TOTAL</th>
-                    </tr>
-                    {addedProducts.length > 0 && (
-                        addedProducts.map((product, index) => (
-                            <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>{product.name}</td>
-                                <td>{product.hsn}</td>
-                                <td>{product.quantity}</td>
-                                <td>.</td>
-                                <td>{product.price}</td>
-                                <td>{product.price}</td>
-                                <td>.</td>
-                                <td>{product.quantity * product.price}</td>
-                            </tr>
-                        ))
-                    )}
-                    <tr>
-                        <td></td>
-                        <td>FRIEGHT CHARGES</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>150/-</td>
-                        <td>150/-</td>
-                        <td>18%</td>
-                        <td>177/-</td>
-                    </tr>
-                    <tr>
-                        <td style={{ borderTop: '1px solid black' }} colSpan={5}>.</td>
-                        <td style={{ borderTop: '1px solid black' }}>.</td>
-                        <td style={{ borderTop: '1px solid black' }}>.</td>
-                        <td style={{ borderTop: '1px solid black' }}>.</td>
-                        <td style={{ borderTop: '1px solid black' }}>.</td>
-                    </tr>
-                    <tr >
-                        <td style={{ borderTop: '1px solid black' }} colSpan={5}>TOTAL</td>
-                        <td style={{ borderTop: '1px solid black' }} >.</td>
-                        <td style={{ borderTop: '1px solid black' }} >11,990/-</td>
-                        <td style={{ borderTop: '1px solid black' }} colSpan={2}>14,042/-</td>
-                    </tr>
-                    <tr className='second-header-row'>
-                        <th style={{ whiteSpace: 'nowrap' }}>TAX TYPE</th>
-                        <th>TAXABLE AMOUNT</th>
-                        <th>RATE</th>
-                        <th colSpan={3}>TAX AMOUNT</th>
-                        <th colSpan={3}>AMOUNTS</th>
-                    </tr>
-                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
-                        <td>IGST</td>
-                        <td>11990/-</td>
-                        <td>18%</td>
-                        <td colSpan={3}>2142/-</td>
-                        <td>Sub Total :</td>
-                        <td colSpan={2}>14,042/-</td>
-                    </tr>
-                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
-                        <td colSpan={6}>.</td>
-                        <td>Round off :</td>
-                        <td colSpan={2}>0/-</td>
-                    </tr>
-                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
-                        <td colSpan={6}>.</td>
-                        <td style={{ borderTop: '1px solid black' }}>Total :</td>
-                        <td style={{ borderTop: '1px solid black' }} colSpan={2}>14,042/-</td>
-                    </tr>
-                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
-                        <td colSpan={4}>Total Tax Amount</td>
-                        <td colSpan={2}>2142/-</td>
-                        <td>Recieved :</td>
-                        <td colSpan={2}>0/-</td>
-                    </tr>
-                    <tr className='second-header-row-amount-holder' style={{ backgroundColor: 'white', color: 'black' }}>
-                        <td colSpan={6}>.</td>
-                        <td style={{ borderTop: '1px solid black', borderBottom: '1px solid black' }}>Balance :</td>
-                        <td style={{ borderTop: '1px solid black', borderBottom: '1px solid black' }} colSpan={2}>14,042/-</td>
-                    </tr>
-                    <tr className='signature-row'>
-                        <th style={{ backgroundColor: '#ff0000', color: 'white' }} colSpan={6}>PREFORMA INVOICE AMOUNT IN WORDS</th>
-                        <th colSpan={3}>For Vision Automation &</th>
-                    </tr>
-                    <tr className='signature-row'>
-                        <th colSpan={6}>FOURTEEN THOUSEND FOURTY TWO ONLY</th>
-                        <th colSpan={3}>Technologies</th>
-                    </tr>
-                    <tr className='signature-row'>
-                        <th style={{ backgroundColor: '#ff0000', color: 'white', borderBottom: '2px solid black' }} colSpan={4}>TERMS & CONDITIONS</th>
-                        <th style={{ backgroundColor: '#ff0000', color: 'white', borderLeft: 'none' }} colSpan={2}>BANK DETAILES</th>
-                        <th colSpan={3} rowSpan={4}><img className='stamp-img' alt="sign" /></th>
-                    </tr>
-                    <tr className='terms-condition-row'>
-                        <td colSpan={4}>1. Goods once sold will not be taken back.</td>
-                        <td colSpan={2}>HDFC BANK</td>
-                    </tr>
-                    <tr className='terms-condition-row'>
-                        <td colSpan={4}>2. Intrest @15% will be charged after 15 days of bill.</td>
-                        <td colSpan={2}>Vision Automation &<br></br> Technologies</td>
-                    </tr>
-                    <tr className='terms-condition-row'>
-                        <td colSpan={4}>3. All disputes are subjected to Jagadhri jurisdiction.</td>
-                        <td colSpan={2}>Acc. No. <b>50200071608050</b></td>
-                    </tr>
-                    <tr>
-                        <td colSpan={4}></td>
-                        <td colSpan={2}>IFSC: <b>HDFC0004407</b></td>
-                        <td style={{ textAlign: 'left', borderTop: '1px solid black', borderBottom: '1px solid black' }} colSpan={3} rowSpan={2}>Recieved by:</td>
-                    </tr>
-                    <tr>
-                        <td style={{ textAlign: 'left', borderTop: '1px solid black' }} colSpan={6}>Note:- For any Quiry Please contact Mr. Nadeem Khan on Mob. No. 8396805557.</td>
-                    </tr>
-                    <tr>
-                        <th style={{ backgroundColor: '#ff0000', color: 'white', fontSize: '16px', borderTop: '3px solid black' }} colSpan={9}>THANK YOU FOR YOUR BUISNESS</th>
-                    </tr>
+
+                <div className="client-info">
+                    <h3>Bill To:</h3>
+                    <p>
+                        {toPrintCustomer.c_name} Company,<br />
+                        {toPrintCustomer.street_name},<br />
+                        {toPrintCustomer.city},<br />
+                        {toPrintCustomer.state}, {toPrintCustomer.state_code},<br />
+                        PIN: {toPrintCustomer.pin}<br />
+                        GSTIN: {toPrintCustomer.gstin}<br />
+                        Mobile: {toPrintCustomer.phone}
+                    </p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr</th>
+                            <th>Product Name</th>
+                            <th>Product ID</th>
+                            <th>Quantity</th>
+                            <th>Unit Cost</th>
+                            <th>Total Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {addedProducts.length > 0 && (
+                            addedProducts.map((product, index) => (
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{product.product}</td>
+                                    <td>{product.hsn}</td>
+                                    <td>{product.quantity}</td>
+                                    <td>{product.price}</td>
+                                    <td>{product.total_price}</td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
                 </table>
 
+                <div className="footer">
+                    Thank you for your business!
+                </div>
             </div>
         </>
     )

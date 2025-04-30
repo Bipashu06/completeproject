@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './view_customers.css';
 import axios from 'axios';
+const apiurl = "http://localhost:3001"
+
 function ViewCustomers() {
   const [customers, setCustomers] = useState([]);
   const [error, setError] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
-
-
   const [customerName, setCustomerName] = useState("");
   const [streetName, setStreetName] = useState("");
   const [cityName, setCityName] = useState("");
@@ -16,9 +16,10 @@ function ViewCustomers() {
   const [customerId, setCustomerId] = useState(0);
   const [gstin, setGstin] = useState("");
   const [pin, setPin] = useState(0);
+  const [showLoader, setShowLoader] = useState(false);
 
  function fetchCutomers(){
-  fetch("https://fullstack-backend-gaay.onrender.com/customers") 
+  fetch(`${apiurl}/customers`) 
   .then((response) => {
     if (!response.ok) {
       throw new Error("Failed to fetch customers.");
@@ -33,8 +34,8 @@ function ViewCustomers() {
   });
  };
  const deleteCustomer = (delid) => {
-    axios.delete('https://fullstack-backend-gaay.onrender.com/customers', { data: { id: delid } }).then((response) => {
-      console.log(response.data);
+    axios.delete(`${apiurl}/customers`, { data: { id: delid } }).then((response) => {
+
       fetchCutomers();
     }).catch(e => {
       console.error("Error occured ", e);
@@ -43,7 +44,12 @@ function ViewCustomers() {
 
  const editCustomer = (e) => {
   e.preventDefault();
-  axios.put('https://fullstack-backend-gaay.onrender.com/update', {
+  if(!customerName || !streetName || !cityName || !stateName || !stateCode || !phone || !pin || !gstin){
+    alert('Please fill out all');
+    return null;
+  }
+  setShowLoader(true);
+  axios.put(`${apiurl}/customers/update`, {
     id: customerId,
     c_name: customerName.toLowerCase(),
     street_name: streetName.toLowerCase(),
@@ -54,14 +60,21 @@ function ViewCustomers() {
     pin: pin,
     gstin: gstin.toLowerCase(),
   }).then((response) => {
-    console.log(response.data);
+    if(response.data.error){
+      alert(response.data.error);
+      return null;
+    }
+    alert(response.data.message);
     fetchCutomers();
     setShowEditForm(false);
   }).catch((e) => {
     setShowEditForm(false);
     setError(error.message);
-    console.log(error);
+   alert(error.message);
   })
+  .finally(() => {
+    setShowLoader(false);
+  });
   };
 
   useEffect(() => {
@@ -85,9 +98,10 @@ function ViewCustomers() {
   }
 
   return (
-    <div>
+    <section>
       <h2>Customers List</h2>
       {customers.length > 0 ? (
+       
         <table cellSpacing={0}>
           <thead>
             <tr>
@@ -105,21 +119,24 @@ function ViewCustomers() {
             </tr>
           </thead>
           <tbody>
-          {customers.map((customer, index) => (
-            <tr key={index}>
-             <td>{customer.id}</td>
-             <td> <strong>{customer.c_name}</strong></td>
-             <td>{customer.street_name} </td>
-             <td>{customer.city}</td>
-             <td> <strong>{customer.state}</strong></td>
-             <td>{customer.pin} </td>
-             <td>{customer.phone}</td>
-             <td> <strong>{customer.reg_date}</strong></td>
-             <td>{customer.state_code} </td>
-             <td>{customer.gstin} </td>
-             <td><button onClick={() => handleEdit(customer.id, customer.c_name, customer.street_name, customer.city, customer.state, customer.pin, customer.phone, customer.state_code, customer.gstin)} id ='edit_btn'>Edit</button> <button onClick={() => deleteCustomer(customer.id)} id ='delete_btn'>Delete</button></td>
-            </tr>
-          ))}
+          {customers.map((customer, index) => {
+            const reg_date = new Date(customer.reg_date).toLocaleString();
+            return(
+              <tr key={index}>
+              <td>{customer.id}</td>
+              <td> <strong>{customer.c_name}</strong></td>
+              <td>{customer.street_name} </td>
+              <td>{customer.city}</td>
+              <td> <strong>{customer.state}</strong></td>
+              <td>{customer.pin} </td>
+              <td>{customer.phone}</td>
+              <td> <strong>{reg_date}</strong></td>
+              <td>{customer.state_code} </td>
+              <td>{customer.gstin} </td>
+              <td><button onClick={() => handleEdit(customer.id, customer.c_name, customer.street_name, customer.city, customer.state, customer.pin, customer.phone, customer.state_code, customer.gstin)} id ='edit_btn'>Edit</button> <button onClick={() => deleteCustomer(customer.id)} id ='delete_btn'>Delete</button></td>
+             </tr>
+            );
+           })}
           </tbody>
         </table>
       ) : (
@@ -127,8 +144,13 @@ function ViewCustomers() {
       )}
       {showEditForm && (
 
-       <div className="product-edit-popup">
+       <div className="product-edit-popup" id='customer-edit-form'>
           <form>
+          {showLoader && (
+                <div className="loader-container">
+                    <span class="loader"></span>
+                </div>
+            )}
             <img onClick={() => setShowEditForm(false)} width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/multiply.png" alt="multiply"/>
             <label htmlFor="c_name">Company Name</label>
             <input required type="text" value={customerName} name="c_name" onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer Name" />
@@ -143,13 +165,22 @@ function ViewCustomers() {
             <input required type="text" value={stateName} name="state" onChange={(e) => setStateName(e.target.value)} placeholder="State" />
             
             <label htmlFor="pin">Pin</label>
-            <input required type="number" value={pin} name="pin" onChange={(e) => setPin(e.target.value)} placeholder="Pin" />
+            <input required type="number"
+            onWheel={(e) => e.target.blur()}
+            min={1}
+            value={pin} name="pin" onChange={(e) => setPin(e.target.value)} placeholder="Pin" />
             
             <label htmlFor="phone">Phone</label>
-            <input required type="number" value={phone} name="phone" onChange={(e) => setPhone(e.target.value)} placeholder="Phone" />
+            <input required type="number"
+            onWheel={(e) => e.target.blur()}
+            min={1}
+            value={phone} name="phone" onChange={(e) => setPhone(e.target.value)} placeholder="Phone" />
             
             <label htmlFor="statecode">State Code</label>
-            <input required type="number" value={stateCode} name="statecode" onChange={(e) => setStateCode(e.target.value)} placeholder="State Code" />
+            <input required type="number"
+            onWheel={(e) => e.target.blur()}
+            min={1}
+            value={stateCode} name="statecode" onChange={(e) => setStateCode(e.target.value)} placeholder="State Code" />
             
             <label htmlFor="gstin">Gstin</label>
             <input required type="text" value={gstin} name="gstin" onChange={(e) => setGstin(e.target.value)} placeholder="GSTIN" />
@@ -158,7 +189,7 @@ function ViewCustomers() {
           </form>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

@@ -5,7 +5,7 @@ const db = require('./models');
 
 const Port = process.env.PORT || 3001;
 app.use(cors({
-    origin: "https://billingsystem-ljxt.onrender.com",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));

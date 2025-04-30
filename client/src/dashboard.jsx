@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import './dashboard.css';
+const apiurl = "http://localhost:3001"
 
 export default function DashBoard(){
     const [products, setProducts] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [invoice, setInvoice] = useState([]);
+    const [totalAmount, setTotalAmount] = useState(0);
+    async function fetchTotalAmount() {
+      try{
+        const response = await axios.get(`${apiurl}/orders/total-amount`);
+        setTotalAmount(response.data.total_price);
+      }catch(e){
+        console.error(e.message)
+      }
+    }
     function fetchProducts() {
-        fetch("https://fullstack-backend-gaay.onrender.com/products")
+        fetch(`${apiurl}/products`)
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to fetch products.");
@@ -21,7 +32,7 @@ export default function DashBoard(){
           });
       }
       function fetchCutomers(){
-        fetch("https://fullstack-backend-gaay.onrender.com/customers") 
+        fetch(`${apiurl}/customers`) 
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch customers.");
@@ -36,7 +47,7 @@ export default function DashBoard(){
         });
        };
        function fetchInvoices() {
-        fetch("https://fullstack-backend-gaay.onrender.com/invoices")
+        fetch(`${apiurl}/invoices`)
           .then((response) => {
             if (!response.ok) {
               throw new Error("Failed to fetch invoices.");
@@ -55,14 +66,11 @@ export default function DashBoard(){
         fetchProducts();
         fetchCutomers();
         fetchInvoices();
+        fetchTotalAmount();
       }, []);
     return(
         <>
          <div className="box-container">
-            <div className="box">
-                <p>Sales</p>
-                <h2>10</h2>
-            </div>
             <div className="box">
                 <p>Invoices</p>
                 <h2>{invoice.length}</h2>
@@ -76,16 +84,8 @@ export default function DashBoard(){
                 <h2>{customers.length}</h2>
             </div>
             <div className="box">
-                <p>Paid Bills</p>
-                <h2>10</h2>
-            </div>
-            <div className="box">
-                <p>Pending Bills</p>
-                <h2>10</h2>
-            </div>
-            <div className="box">
-                <p>Due Amount</p>
-                <h2>10</h2>
+                <p>Total Amount</p>
+                <h2>{totalAmount ? totalAmount : 0}</h2>
             </div>
          </div>
         </>
